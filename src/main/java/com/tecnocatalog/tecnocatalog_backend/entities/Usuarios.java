@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import java.util.*;
 
 @Entity
 @Data
@@ -33,4 +34,12 @@ public class Usuarios {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rol_id", nullable = false)
     private Roles rol;
+
+    @ManyToMany
+    @JoinTable(
+            name = "favoritos",
+            joinColumns = @JoinColumn(name = "usuarios_id"),
+            inverseJoinColumns = @JoinColumn(name = "productos_idproductos")
+    )
+    private Set<Productos> favoritos = new HashSet<>();
 }
