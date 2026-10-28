@@ -5,9 +5,11 @@ import com.tecnocatalog.tecnocatalog_backend.entities.Productos;
 import com.tecnocatalog.tecnocatalog_backend.repositories.CategoriaRepository;
 import com.tecnocatalog.tecnocatalog_backend.repositories.ProductoRepository;
 import com.tecnocatalog.tecnocatalog_backend.services.ProductoService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class ProductoServiceImpl implements ProductoService {
 
     private final ProductoRepository productoRepository;
