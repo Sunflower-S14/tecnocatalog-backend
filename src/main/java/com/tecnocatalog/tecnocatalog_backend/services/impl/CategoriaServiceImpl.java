@@ -1,11 +1,12 @@
 package com.tecnocatalog.tecnocatalog_backend.services.impl;
-
+import org.springframework.stereotype.Service;
 import com.tecnocatalog.tecnocatalog_backend.entities.Categorias;
 import com.tecnocatalog.tecnocatalog_backend.repositories.CategoriaRepository;
 import com.tecnocatalog.tecnocatalog_backend.services.CategoriaService;
 
 import java.util.List;
 
+@Service
 public class CategoriaServiceImpl implements CategoriaService {
 
     private final CategoriaRepository categoriaRepository;
