@@ -1,5 +1,7 @@
 package com.tecnocatalog.tecnocatalog_backend.services;
 
+import com.tecnocatalog.tecnocatalog_backend.dto.RegistroUsuarioRequest;
+import com.tecnocatalog.tecnocatalog_backend.dto.UsuarioResponse;
 import com.tecnocatalog.tecnocatalog_backend.entities.Productos;
 import com.tecnocatalog.tecnocatalog_backend.entities.Usuarios;
 
@@ -17,6 +19,8 @@ public interface UsuarioService {
     Usuarios actualizarUsuario(Integer id, Usuarios usuario);
 
     void eliminarUsuario(Integer id);
+
+    UsuarioResponse registrarUsuario(RegistroUsuarioRequest request);
 
     Set<Productos> obtenerFavoritos(Integer usuarioId);
 
