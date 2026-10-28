@@ -3,9 +3,10 @@ package com.tecnocatalog.tecnocatalog_backend.services.impl;
 import com.tecnocatalog.tecnocatalog_backend.entities.Usuarios;
 import com.tecnocatalog.tecnocatalog_backend.repositories.UsuarioRepository;
 import com.tecnocatalog.tecnocatalog_backend.services.UsuarioService;
-
+import org.springframework.stereotype.Service;
 import java.util.List;
 
+@Service
 public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
