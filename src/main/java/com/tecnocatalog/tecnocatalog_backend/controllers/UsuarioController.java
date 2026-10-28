@@ -1,10 +1,14 @@
 package com.tecnocatalog.tecnocatalog_backend.controllers;
 
 import com.tecnocatalog.tecnocatalog_backend.dto.UsuarioResponse;
+import com.tecnocatalog.tecnocatalog_backend.dto.RegistroUsuarioRequest;
 import com.tecnocatalog.tecnocatalog_backend.entities.Usuarios;
 import com.tecnocatalog.tecnocatalog_backend.services.UsuarioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -65,6 +69,16 @@ public class UsuarioController {
                 usuario.getEmail(),
                 usuario.getRol().getIdrol()
         );
+    }
+
+    @PostMapping("/registro")
+    public ResponseEntity<UsuarioResponse> registrarUsuario(
+            @Valid @RequestBody RegistroUsuarioRequest request) {
+
+        UsuarioResponse usuario =
+                usuarioService.registrarUsuario(request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
     }
 
     //Endpoints para favoritos
