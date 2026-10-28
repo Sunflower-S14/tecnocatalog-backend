@@ -1,8 +1,10 @@
 package com.tecnocatalog.tecnocatalog_backend.services;
 
+import com.tecnocatalog.tecnocatalog_backend.entities.Productos;
 import com.tecnocatalog.tecnocatalog_backend.entities.Usuarios;
 
 import java.util.List;
+import java.util.Set;
 
 public interface UsuarioService {
 
@@ -15,4 +17,10 @@ public interface UsuarioService {
     Usuarios actualizarUsuario(Integer id, Usuarios usuario);
 
     void eliminarUsuario(Integer id);
+
+    Set<Productos> obtenerFavoritos(Integer usuarioId);
+
+    void agregarFavorito(Integer usuarioId, Integer productoId);
+
+    void eliminarFavorito(Integer usuarioId, Integer productoId);
 }

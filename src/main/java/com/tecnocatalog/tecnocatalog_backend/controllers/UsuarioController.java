@@ -66,4 +66,35 @@ public class UsuarioController {
                 usuario.getRol().getIdrol()
         );
     }
+
+    //Endpoints para favoritos
+    @GetMapping("/{usuarioId}/favoritos")
+    public ResponseEntity<?> obtenerFavoritos(
+            @PathVariable Integer usuarioId) {
+
+        return ResponseEntity.ok(
+                usuarioService.obtenerFavoritos(usuarioId)
+        );
+    }
+
+    @PostMapping("/{usuarioId}/favoritos/{productoId}")
+    public ResponseEntity<Void> agregarFavorito(
+            @PathVariable Integer usuarioId,
+            @PathVariable Integer productoId) {
+
+        usuarioService.agregarFavorito(usuarioId, productoId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{usuarioId}/favoritos/{productoId}")
+    public ResponseEntity<Void> eliminarFavorito(
+            @PathVariable Integer usuarioId,
+            @PathVariable Integer productoId) {
+
+        usuarioService.eliminarFavorito(usuarioId, productoId);
+
+        return ResponseEntity.noContent().build();
+    }
+
 }
