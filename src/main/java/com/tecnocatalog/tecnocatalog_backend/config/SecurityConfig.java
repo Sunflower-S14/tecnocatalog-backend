@@ -37,16 +37,16 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
 
-                .authorizeHttpRequests(auth -> auth
 
-                        // Registro e inicio de sesión de endpoints públicos
+                .authorizeHttpRequests(auth -> auth
+                        // Login y registro públicos
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/auth/login",
                                 "/api/usuarios/registro"
                         ).permitAll()
 
-                        // Consulta pública del catálogos
+                        // Consulta pública del catálogo
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/productos",
@@ -55,23 +55,31 @@ public class SecurityConfig {
                                 "/api/categorias/**"
                         ).permitAll()
 
-                        // Solo el administrador gestiona el inventario
-                        .requestMatchers("/api/productos/**")
-                        .hasAuthority("ROLE_ID_1")
+                        // Favoritos: usuarios autenticados y administradores
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/usuarios/*/favoritos"
+                        ).hasAnyAuthority("ROLE_ID_1", "ROLE_ID_2")
 
-                        .requestMatchers("/api/categorias/**")
-                        .hasAuthority("ROLE_ID_1")
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/usuarios/*/favoritos/*"
+                        ).hasAnyAuthority("ROLE_ID_1", "ROLE_ID_2")
 
-                        // Roles y usuarios: administración exclusiva
-                        .requestMatchers("/api/roles/**")
-                        .hasAuthority("ROLE_ID_1")
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/usuarios/*/favoritos/*"
+                        ).hasAnyAuthority("ROLE_ID_1", "ROLE_ID_2")
 
-                        .requestMatchers("/api/usuarios/**")
-                        .hasAuthority("ROLE_ID_1")
+                        // Solo administradores pueden gestionar estos recursos
+                        .requestMatchers("/api/productos/**").hasAuthority("ROLE_ID_1")
+                        .requestMatchers("/api/categorias/**").hasAuthority("ROLE_ID_1")
+                        .requestMatchers("/api/roles/**").hasAuthority("ROLE_ID_1")
+                        .requestMatchers("/api/usuarios/**").hasAuthority("ROLE_ID_1")
 
-                        // Cualquier otro endpoint requiere autenticación
                         .anyRequest().authenticated()
                 )
+
 
                 .addFilterBefore(
                         jwtAuthenticationFilter,

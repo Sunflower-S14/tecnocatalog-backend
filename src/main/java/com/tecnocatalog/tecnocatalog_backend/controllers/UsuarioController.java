@@ -4,11 +4,14 @@ import com.tecnocatalog.tecnocatalog_backend.dto.UsuarioResponse;
 import com.tecnocatalog.tecnocatalog_backend.dto.RegistroUsuarioRequest;
 import com.tecnocatalog.tecnocatalog_backend.entities.Usuarios;
 import com.tecnocatalog.tecnocatalog_backend.services.UsuarioService;
+import com.tecnocatalog.tecnocatalog_backend.repositories.UsuarioRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
 
@@ -17,9 +20,13 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final UsuarioRepository usuarioRepository;
 
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(
+            UsuarioService usuarioService,
+            UsuarioRepository usuarioRepository) {
         this.usuarioService = usuarioService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @GetMapping
@@ -84,7 +91,10 @@ public class UsuarioController {
     //Endpoints para favoritos
     @GetMapping("/{usuarioId}/favoritos")
     public ResponseEntity<?> obtenerFavoritos(
-            @PathVariable Integer usuarioId) {
+            @PathVariable Integer usuarioId,
+            Authentication authentication) {
+
+        verificarAccesoUsuario(usuarioId, authentication);
 
         return ResponseEntity.ok(
                 usuarioService.obtenerFavoritos(usuarioId)
@@ -94,7 +104,10 @@ public class UsuarioController {
     @PostMapping("/{usuarioId}/favoritos/{productoId}")
     public ResponseEntity<Void> agregarFavorito(
             @PathVariable Integer usuarioId,
-            @PathVariable Integer productoId) {
+            @PathVariable Integer productoId,
+            Authentication authentication) {
+
+        verificarAccesoUsuario(usuarioId, authentication);
 
         usuarioService.agregarFavorito(usuarioId, productoId);
 
@@ -104,11 +117,43 @@ public class UsuarioController {
     @DeleteMapping("/{usuarioId}/favoritos/{productoId}")
     public ResponseEntity<Void> eliminarFavorito(
             @PathVariable Integer usuarioId,
-            @PathVariable Integer productoId) {
+            @PathVariable Integer productoId,
+            Authentication authentication) {
+
+        verificarAccesoUsuario(usuarioId, authentication);
 
         usuarioService.eliminarFavorito(usuarioId, productoId);
 
         return ResponseEntity.noContent().build();
     }
+
+    private void verificarAccesoUsuario(
+            Integer usuarioId,
+            Authentication authentication) {
+
+        boolean esAdministrador = authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority().equals("ROLE_ID_1"));
+
+        if (esAdministrador) {
+            return;
+        }
+
+        Integer usuarioAutenticado = usuarioRepository
+                .findByEmail(authentication.getName())
+                .orElseThrow(() ->
+                        new AccessDeniedException(
+                                "No se pudo identificar al usuario autenticado"
+                        ))
+                .getId();
+
+        if (!usuarioAutenticado.equals(usuarioId)) {
+            throw new AccessDeniedException(
+                    "No tienes permiso para acceder a los favoritos de otro usuario"
+            );
+        }
+    }
+
 
 }
