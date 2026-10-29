@@ -68,10 +68,11 @@ public class UsuarioServiceImpl implements UsuarioService {
             );
         }
 
-        Roles rol = rolRepository.findById(request.rolId())
+        // El registro público siempre se le asignará el rol de usuario (ID 2).
+        Roles rol = rolRepository.findById(2)
                 .orElseThrow(() ->
-                        new RuntimeException(
-                                "No se encontró el rol con ID: " + request.rolId()
+                        new IllegalStateException(
+                                "No se encontró el rol de usuario con ID 2"
                         ));
 
         Usuarios usuario = new Usuarios();
