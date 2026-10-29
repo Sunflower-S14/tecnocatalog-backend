@@ -8,9 +8,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
@@ -21,6 +25,34 @@ public class SecurityConfig {
         return new JwtAuthenticationFilter(jwtService);
     }
 
+    // Configuración CORS para permitir la comunicación con Angular
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:4200",
+                "http://127.0.0.1:4200"
+        ));
+
+        configuration.setAllowedMethods(List.of(
+                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
+        ));
+
+        configuration.setAllowedHeaders(List.of(
+                "Authorization", "Content-Type", "Accept"
+        ));
+
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
@@ -28,6 +60,7 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
+                .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
 
                 .sessionManagement(session -> session
@@ -37,8 +70,11 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
 
-
                 .authorizeHttpRequests(auth -> auth
+
+                        // Permitir las solicitudes previas de CORS
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                         // Login y registro públicos
                         .requestMatchers(
                                 HttpMethod.POST,
@@ -72,14 +108,20 @@ public class SecurityConfig {
                         ).hasAnyAuthority("ROLE_ID_1", "ROLE_ID_2")
 
                         // Solo administradores pueden gestionar estos recursos
-                        .requestMatchers("/api/productos/**").hasAuthority("ROLE_ID_1")
-                        .requestMatchers("/api/categorias/**").hasAuthority("ROLE_ID_1")
-                        .requestMatchers("/api/roles/**").hasAuthority("ROLE_ID_1")
-                        .requestMatchers("/api/usuarios/**").hasAuthority("ROLE_ID_1")
+                        .requestMatchers("/api/productos/**")
+                        .hasAuthority("ROLE_ID_1")
+
+                        .requestMatchers("/api/categorias/**")
+                        .hasAuthority("ROLE_ID_1")
+
+                        .requestMatchers("/api/roles/**")
+                        .hasAuthority("ROLE_ID_1")
+
+                        .requestMatchers("/api/usuarios/**")
+                        .hasAuthority("ROLE_ID_1")
 
                         .anyRequest().authenticated()
                 )
-
 
                 .addFilterBefore(
                         jwtAuthenticationFilter,
